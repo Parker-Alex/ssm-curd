@@ -8,10 +8,14 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 @Controller
@@ -68,9 +72,27 @@ public class EmployeeController {
      */
     @RequestMapping(value = "/emps",method = RequestMethod.POST)
     @ResponseBody
-    public Msg addEmp(Employee employee){
-        employeeService.addEmp(employee);
-        return Msg.success();
+    public Msg addEmp(@Valid Employee employee, BindingResult bindingResult){//用BindingResult封装校验结果
+        Map<String,Object> map = new HashMap<>();
+//        当校验有错误时,得到封装字段和封装的提示信息,然后添加到返回结果中
+        if (bindingResult.hasErrors()){
+//            得到所有的错误信息
+            List<FieldError> errors = bindingResult.getFieldErrors();
+//            遍历错误信息
+            for (FieldError error :
+                    errors) {
+//                输出错误的字段
+//                System.out.println("错误的字段名: "+error.getField());
+//                输出错误的信息
+//                System.out.println("错误的信息: "+error.getDefaultMessage());
+//                将错误字段名和信息加到map中
+                map.put(error.getField(),error.getDefaultMessage());
+            }
+            return Msg.fail().add("errorInfo",map);
+        }else {
+            employeeService.addEmp(employee);
+            return Msg.success();
+        }
     }
 
     /**
@@ -78,7 +100,7 @@ public class EmployeeController {
      */
     @RequestMapping("/checkName")
     @ResponseBody
-    public Msg checkName(@RequestParam("empName") String empName){//注解告诉springmvc明确取出empName的值
+    public Msg checkName(@RequestParam("empName") String empName){//注解告诉springmvc明确取出请求路径中某元素name=empName的值
         boolean b = employeeService.checkName(empName);
         String regex = "(^[a-zA-Z0-9_-]{6,16}$)|(^[\u2E80-\u9FFF]{2,5})";
         if (!empName.matches(regex)){
@@ -87,7 +109,7 @@ public class EmployeeController {
         if (b){
             return Msg.success();
         }else{
-            return Msg.fail().add("message","名字不符合格式!!!");
+            return Msg.fail().add("message","请换一个用户名");
         }
 
     }

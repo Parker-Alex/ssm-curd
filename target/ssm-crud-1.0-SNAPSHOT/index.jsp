@@ -27,10 +27,10 @@
                 <h4 class="modal-title">个人信息</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal">
+                <form class="form-horizontal text-center">
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Name</label>
-                        <div class="col-sm-3">
+                        <div class="col-sm-8">
                             <p class="form-control-static" id="select_name"></p>
                         </div>
                     </div>
@@ -42,13 +42,13 @@
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Gender</label>
-                        <div class="col-sm-10">
+                        <div class="col-sm-8">
                             <p class="form-control-static" id="select_gender"></p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Dept</label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-8">
                             <p class="form-control-static" id="select_dept"></p>
                         </div>
                     </div>
@@ -194,7 +194,7 @@
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Search ID" id="select_Id">
                 </div>
-                <button type="button" class="btn btn-default" id="select_emp_btn">Submit</button>
+                <button type="button" class="btn btn-default" id="select_emp_btn">搜索</button>
             </form>
         </div>
     </div>
@@ -470,9 +470,9 @@
         });
     });
 
-    //为"保存员工信息"按钮添加点击事件
+    //为添加员工模态框中的"保存员工信息"按钮添加点击事件
     $("#save_info").click(function () {
-        // 提交数据保存前先调用验证函数
+        提交数据保存前先调用验证函数
         if (!verify_emp()) {
             return false;
         };
@@ -488,8 +488,22 @@
             data:$("#myModal form").serialize(),//将表单的数据序列化为字符串
             success:function (result) {
                 // alert(result.msg);
-                $("#myModal").modal("hide");
-                to_page(sum);
+                //根据返回结果的状态码进行判断
+                //当成功时，关闭模态框，跳转页面
+                if (result.code == 100) {
+                    $("#myModal").modal("hide");
+                    to_page(sum);
+                }else if (result.code == 200){
+                    //console.log(result);
+                    //如果是电子邮箱验证错误,提示相关信息
+                    if (undefined != result.extend.errorInfo.email) {
+                        show_validate_m("#add_email","error",result.extend.errorInfo.email);
+                    }
+                    //如果是名字验证错误,提示相关信息
+                    if (undefined != result.extend.errorInfo.empName){
+                        show_validate_m("#add_name","error",result.extend.errorInfo.email);
+                    }
+                }
             }
         });
         // alert($("#myModal form").serialize());
