@@ -48,8 +48,8 @@ public class EmployeeController {
      *删除单个员工信息
      */
     @RequestMapping(value = "/emp/{id}",method = RequestMethod.DELETE)
-    @ResponseBody
-    public Msg delEmp(@PathVariable("id") Integer id){//从路径中取出id的值
+    @ResponseBody//处理返回数据,用@RequestBody获取页面提交的JSON格式
+    public Msg delEmp(@PathVariable("id") Integer id){//从路径中占位符{id}与操作方法的入参"id"进行绑定
         employeeService.delEmp(id);
         return Msg.success();
     }
